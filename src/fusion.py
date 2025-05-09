@@ -1,68 +1,80 @@
+# src/fusion.py
+
+import os
 import torch
-import torch.nn.functional as F
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
-from .config import MODEL_SAVE_PATH, FUSION_OUTPUT_PATH
-from .utils import load_nsl_kdd, transform_to_gaf, normalize_and_save
-from .train import CNNModel
+from sklearn.model_selection import train_test_split
+from src.config import *
+from src.models import AdvancedCNN, VAE
+from src.utils import load_dataset, normalize_and_save, transform_to_gaf
+from src.train import AdvancedCNN as CNNModel
+from src.vae_train import train_vae
 
-
-def load_dummy_vae_scores(X):
-    """Simulate VAE reconstruction loss as anomaly scores (normally you'd load a real VAE)."""
-    np.random.seed(42)
-    vae_loss = np.random.rand(len(X)) * 0.5  # simulated anomaly scores
-    return (vae_loss - vae_loss.min()) / (vae_loss.max() - vae_loss.min())
-
-def fusion_predict(y_true, cnn_prob, vae_score):
-    # Simple average fusion
-    combined = (cnn_prob + vae_score) / 2
-    y_pred = (combined > 0.5).astype(int)
-    return y_pred, combined
 
 def evaluate_fusion():
-    X, y = load_nsl_kdd()
+    print(f"[INFO] Loading dataset: {DATASET_NAME} for fusion evaluation...")
+    X, y = load_dataset()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     X_train, X_test = normalize_and_save(X_train, X_test)
 
-    # Load CNN model and get CNN probs
-    X_test_gaf = transform_to_gaf(X_test)
-    model = CNNModel()
-    model.load_state_dict(torch.load(MODEL_SAVE_PATH, map_location=torch.device('cpu')))
-    model.eval()
+    # === Load VAE ===
+    print("[INFO] Loading dataset for VAE...")
+    vae_model = train_vae()  # handles load/retrain logic
+    vae_model.eval()
     with torch.no_grad():
-        X_tensor = torch.tensor(X_test_gaf, dtype=torch.float32)
-        outputs = model(X_tensor)
-        probs = F.softmax(outputs, dim=1).numpy()
-        cnn_probs = probs[:, 1]
+        vae_outputs = vae_model(torch.tensor(X_test, dtype=torch.float32))
+        if isinstance(vae_outputs, tuple):
+            vae_recon = vae_outputs[0]
+        else:
+            vae_recon = vae_outputs
+        vae_recon = vae_recon.detach().numpy()
 
-    # Simulated VAE anomaly scores
-    vae_scores = load_dummy_vae_scores(X_test)
+    vae_loss = np.mean((X_test - vae_recon) ** 2, axis=1)
+    threshold = np.percentile(vae_loss, 95)
+    y_prob_vae = (vae_loss - vae_loss.min()) / (vae_loss.max() - vae_loss.min())
+    y_pred_vae = (vae_loss > threshold).astype(int)
 
-    # Fusion prediction
-    y_pred, y_fused = fusion_predict(y_test, cnn_probs, vae_scores)
+    # === Load CNN ===
+    cnn_model = CNNModel()
+    model_name = f"cnn_model_{DATASET_NAME.lower().replace('-', '_')}.pth"
+    model_path = os.path.join(os.path.dirname(MODEL_SAVE_PATH), model_name)
+    if os.path.exists(model_path):
+        cnn_model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
+        print(f"✅ Loaded CNN model from {model_path}")
 
-    # Evaluation
-    acc = accuracy_score(y_test, y_pred)
-    prec = precision_score(y_test, y_pred)
-    rec = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    auc = roc_auc_score(y_test, y_fused)
+    cnn_model.eval()
+    gaf_test = transform_to_gaf(X_test)
+    inputs = torch.tensor(gaf_test, dtype=torch.float32)
+    with torch.no_grad():
+        cnn_outputs = cnn_model(inputs).squeeze().numpy()
+    y_prob_cnn = cnn_outputs
+    y_pred_cnn = (y_prob_cnn > 0.5).astype(int)
 
-    with open(FUSION_OUTPUT_PATH, 'w') as f:
-        f.write("=== Fusion Evaluation ===\n")
-        f.write(f"Accuracy:  {acc:.4f}\n")
-        f.write(f"Precision: {prec:.4f}\n")
-        f.write(f"Recall:    {rec:.4f}\n")
-        f.write(f"F1-Score:  {f1:.4f}\n")
-        f.write(f"AUC-ROC:   {auc:.4f}\n")
+    # === Fusion (average) ===
+    y_prob_fusion = (y_prob_vae + y_prob_cnn) / 2
+    y_pred_fusion = (y_prob_fusion > 0.5).astype(int)
 
-    print("\n=== Fusion Evaluation ===")
-    print(f"Accuracy:  {acc:.4f}")
-    print(f"Precision: {prec:.4f}")
-    print(f"Recall:    {rec:.4f}")
-    print(f"F1-Score:  {f1:.4f}")
-    print(f"AUC-ROC:   {auc:.4f}")
+    def report(name, y_true, y_pred, y_prob):
+        print(f"\n📊 {name} Metrics")
+        print(f"Accuracy:  {accuracy_score(y_true, y_pred):.4f}")
+        print(f"Precision: {precision_score(y_true, y_pred):.4f}")
+        print(f"Recall:    {recall_score(y_true, y_pred):.4f}")
+        print(f"F1-Score:  {f1_score(y_true, y_pred):.4f}")
+        print(f"AUC-ROC:   {roc_auc_score(y_true, y_prob):.4f}")
 
-if __name__ == '__main__':
-    evaluate_fusion()
+    report("VAE", y_test, y_pred_vae, y_prob_vae)
+    report("CNN", y_test, y_pred_cnn, y_prob_cnn)
+    report("Fusion", y_test, y_pred_fusion, y_prob_fusion)
+
+    # Save results
+    os.makedirs("outputs", exist_ok=True)
+    result_path = os.path.join("outputs", f"fusion_metrics_{DATASET_NAME.lower()}.txt")
+    with open(result_path, 'w') as f:
+        f.write(f"Fusion Metrics for {DATASET_NAME}\n")
+        f.write(f"Accuracy:  {accuracy_score(y_test, y_pred_fusion):.4f}\n")
+        f.write(f"Precision: {precision_score(y_test, y_pred_fusion):.4f}\n")
+        f.write(f"Recall:    {recall_score(y_test, y_pred_fusion):.4f}\n")
+        f.write(f"F1-Score:  {f1_score(y_test, y_pred_fusion):.4f}\n")
+        f.write(f"AUC-ROC:   {roc_auc_score(y_test, y_prob_fusion):.4f}\n")
+    print(f"💾 Fusion report saved to {result_path}")

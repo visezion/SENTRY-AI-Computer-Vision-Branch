@@ -1,102 +1,76 @@
+# src/train.py
 
+import os
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
-from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split
-from sklearn.utils.class_weight import compute_class_weight
-from sklearn.metrics import f1_score
-import os
-from .config import BATCH_SIZE, EPOCHS, LEARNING_RATE, MODEL_SAVE_PATH
-from .utils import load_nsl_kdd, normalize_and_save, transform_to_gaf
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from src.config import *
+from src.utils import load_dataset, normalize_and_save, transform_to_gaf
+from src.models import AdvancedCNN
 
-class CNNModel(nn.Module):
-    def __init__(self):
-        super(CNNModel, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
 
-            nn.Conv2d(32, 64, 3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 128, 3, padding=1),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d((1, 1))
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 2)
-        )
-
-    def forward(self, x):
-        x = self.features(x)
-        return self.classifier(x)
+from tqdm import tqdm  # ← Add this import
 
 def train_model():
-    X, y = load_nsl_kdd()
+    print(f"[INFO] Loading dataset: {DATASET_NAME}...")
+    X, y = load_dataset()
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
     X_train, X_val = normalize_and_save(X_train, X_val)
 
     X_train_gaf = transform_to_gaf(X_train)
     X_val_gaf = transform_to_gaf(X_val)
 
-    class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
-    weights_tensor = torch.tensor(class_weights, dtype=torch.float32)
+    train_loader = DataLoader(TensorDataset(torch.tensor(X_train_gaf), torch.tensor(y_train)), batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(TensorDataset(torch.tensor(X_val_gaf), torch.tensor(y_val)), batch_size=BATCH_SIZE, shuffle=False)
 
-    sample_weights = [class_weights[label] for label in y_train]
-    sampler = WeightedRandomSampler(sample_weights, len(sample_weights), replacement=True)
+    model = AdvancedCNN()
+    criterion = nn.BCELoss()
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-    train_ds = TensorDataset(torch.tensor(X_train_gaf), torch.tensor(y_train))
-    val_ds = TensorDataset(torch.tensor(X_val_gaf), torch.tensor(y_val))
-    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, sampler=sampler)
-    val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE)
+    model_name = f"cnn_model_{DATASET_NAME.lower().replace('-', '_')}.pth"
+    model_path = os.path.join(os.path.dirname(MODEL_SAVE_PATH), model_name)
 
-    model = CNNModel()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
+    if os.path.exists(model_path):
+        user_input = input(f"⚠️ Found saved model for {DATASET_NAME}. Load instead of retraining? (y/n) [default: y]: ").strip().lower()
+        if user_input in ['', 'y', 'yes']:
+            model.load_state_dict(torch.load(model_path))
+            print(f"✅ Loaded existing model from {model_path}")
+            return model
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    criterion = nn.CrossEntropyLoss(weight=weights_tensor.to(device))
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3)
+    print("🚀 Training new model...")
+    model.train()
 
     for epoch in range(EPOCHS):
-        model.train()
-        total_loss = 0
-        for xb, yb in train_loader:
-            xb, yb = xb.to(device), yb.to(device)
+        running_loss = 0.0
+        preds_all, labels_all = [], []
+
+        progress = tqdm(train_loader, desc=f"Epoch {epoch+1}/{EPOCHS}", unit="batch")
+        for batch_x, batch_y in progress:
             optimizer.zero_grad()
-            preds = model(xb)
-            loss = criterion(preds, yb)
+            outputs = model(batch_x)
+            loss = criterion(outputs.squeeze(), batch_y.float())
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
 
-        model.eval()
-        y_true, y_pred = [], []
-        with torch.no_grad():
-            for xb, yb in val_loader:
-                xb, yb = xb.to(device), yb.to(device)
-                preds = model(xb)
-                probs = F.softmax(preds, dim=1)
-                yhat = torch.argmax(probs, dim=1)
-                y_true.extend(yb.cpu().numpy())
-                y_pred.extend(yhat.cpu().numpy())
+            running_loss += loss.item()
+            preds_all.extend((outputs.squeeze() > 0.5).int().tolist())
+            labels_all.extend(batch_y.tolist())
 
-        f1 = f1_score(y_true, y_pred)
-        print(f"Epoch {epoch+1}/{EPOCHS} | Loss: {total_loss:.4f} | F1: {f1:.4f}")
-        scheduler.step(f1)
+            # Optional: show loss live in tqdm bar
+            progress.set_postfix(loss=loss.item())
 
-    os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
-    torch.save(model.state_dict(), MODEL_SAVE_PATH)
-    print(f"[INFO] Model saved to {MODEL_SAVE_PATH}")
+        acc = accuracy_score(labels_all, preds_all)
+        prec = precision_score(labels_all, preds_all, zero_division=0)
+        rec = recall_score(labels_all, preds_all, zero_division=0)
+        f1 = f1_score(labels_all, preds_all, zero_division=0)
 
-if __name__ == '__main__':
-    train_model()
+        print(f"📊 Epoch {epoch+1} Summary → Loss: {running_loss:.4f} | Acc: {acc:.4f} | Prec: {prec:.4f} | Recall: {rec:.4f} | F1: {f1:.4f}")
+
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    torch.save(model.state_dict(), model_path)
+    print(f"💾 Saved model to {model_path}")
+
+    return model

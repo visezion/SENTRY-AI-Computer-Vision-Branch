@@ -1,0 +1,6 @@
+Fusion Metrics for NSL-KDD
+Accuracy:  0.9907
+Precision: 0.9984
+Recall:    0.9817
+F1-Score:  0.9900
+AUC-ROC:   0.9986
