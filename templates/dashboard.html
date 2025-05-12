@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRY-AI Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .metric-card { border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .gradcam-img { width: 100%; height: auto; border-radius: 8px; }
+        .section-header { margin-top: 40px; margin-bottom: 20px; }
+        .alert-live { font-weight: bold; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <h1 class="text-center mb-4">🛡️ SENTRY-AI Cybersecurity Dashboard</h1>
+
+    <!-- 1. Real-Time Intrusion Detection Status -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h5>Status</h5>
+                <p class="text-success" id="systemStatus">Monitoring ✅</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h5>Traffic Rate</h5>
+                <p id="trafficRate">-- packets/sec</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h5>Last Timestamp</h5>
+                <p id="lastTimestamp">--</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card p-3 bg-warning-subtle">
+                <h5>Live Alerts</h5>
+                <p class="alert-live" id="liveAlerts">No alerts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Detection Metrics Summary -->
+    <div class="section-header"><h4>📊 Detection Metrics Summary</h4></div>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-light">
+                <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Dataset</th><th>Mode</th></tr>
+            </thead>
+            <tbody id="metricsTable"></tbody>
+        </table>
+    </div>
+
+    <!-- 3. Grad-CAM Explanations -->
+    <div class="section-header"><h4>🧠 Grad-CAM Visualizations</h4></div>
+    <div class="row" id="heatmapGallery"></div>
+
+    <!-- 4. Top Attack Types -->
+    <div class="section-header"><h4>🧬 Top Detected Attack Types</h4></div>
+    <canvas id="attackChart"></canvas>
+
+    <!-- 5. Dataset Insights -->
+    <div class="section-header"><h4>📦 Dataset Insights</h4></div>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card metric-card p-3">
+                <h5>Total Samples</h5>
+                <p id="totalSamples">--</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card metric-card p-3">
+                <h5>Benign vs Malicious</h5>
+                <p id="benignMalicious">--</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card metric-card p-3">
+                <h5>Anomaly Timeline</h5>
+                <canvas id="anomalyTimeline"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. System Resource Monitor -->
+    <div class="section-header"><h4>🖥️ System Usage</h4></div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h6>RAM</h6><p id="ramUsage">--</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h6>CPU</h6><p id="cpuUsage">--</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h6>GPU</h6><p id="gpuUsage">--</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card p-3">
+                <h6>Disk</h6><p id="diskUsage">--</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Controls -->
+    <div class="section-header"><h4>🔧 Controls</h4></div>
+    <form class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Select Dataset</label>
+            <select class="form-select">
+                <option>NSL-KDD</option>
+                <option>CICIDS2017</option>
+                <option>UNSW-NB15</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Model</label>
+            <select class="form-select">
+                <option>CNN</option>
+                <option>VAE</option>
+                <option>Fusion</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Batch Mode</label>
+            <select class="form-select">
+                <option>Full</option>
+                <option>Mini-Batch</option>
+            </select>
+        </div>
+    </form>
+
+    <!-- 8. Logs -->
+    <div class="section-header"><h4>📝 Logs</h4></div>
+    <pre id="logConsole" style="background-color:#000; color:#0f0; padding: 10px; height: 200px; overflow-y: scroll;">
+[LOGS APPEAR HERE]
+    </pre>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Example: Render attack chart
+    const ctx = document.getElementById('attackChart').getContext('2d');
+    const attackChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['DoS', 'Exploits', 'Recon', 'Generic', 'Shellcode'],
+            datasets: [{
+                label: 'Detected Count',
+                data: [120, 90, 60, 45, 30],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+</body>
+</html>

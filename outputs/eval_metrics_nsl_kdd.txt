@@ -1,0 +1,21 @@
+=== Evaluation Metrics ===
+Accuracy:            0.9013
+Precision:           0.8256
+Recall:              0.9999
+F1-Score:            0.9044
+AUC-ROC:             0.9997
+Balanced Accuracy:   0.9073
+
+Confusion Matrix:
+[[10935  2487]
+ [    1 11772]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0     0.9999    0.8147    0.8979     13422
+           1     0.8256    0.9999    0.9044     11773
+
+    accuracy                         0.9013     25195
+   macro avg     0.9127    0.9073    0.9011     25195
+weighted avg     0.9185    0.9013    0.9009     25195

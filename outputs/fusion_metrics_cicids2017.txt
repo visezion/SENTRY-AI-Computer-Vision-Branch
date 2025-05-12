@@ -1,0 +1,6 @@
+Fusion Metrics for CICIDS2017
+Accuracy:  0.9555
+Precision: 0.9990
+Recall:    0.7748
+F1-Score:  0.8728
+AUC-ROC:   0.9995

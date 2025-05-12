@@ -11,7 +11,7 @@ nsl_path = os.path.join(BASE_DIR, "data", "nsl_kdd.csv")
 X_nsl, y_nsl = load_nsl_kdd()
 
 print("[INFO] Loading CICIDS2017...")
-cicids_path = os.path.join(BASE_DIR, "data", "cicids2017", "cicids2017_combined.csv")
+cicids_path = os.path.join(BASE_DIR, "data", "cicids2017_combined.csv")
 X_cic, y_cic = load_cicids2017(cicids_path)
 
 print("[INFO] Loading UNSW-NB15...")

@@ -39,3 +39,6 @@ IMAGE_SIZE = 28
 BATCH_SIZE = 128
 EPOCHS = 50
 LEARNING_RATE = 0.001
+
+USE_BATCH_INFERENCE = True  # Set to False for full inference (may consume high memory)
+USE_MINI_EVAL = True  # or False, depending on your memory capacity

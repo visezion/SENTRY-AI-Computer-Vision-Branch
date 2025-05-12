@@ -41,118 +41,118 @@ SENTRY-AI--Computer-Vision-Branch/
 │   └── models.py                # CNN, VAE architectures
 │
 └── gui_frontend/                # Optional Vite/Tailwind React GUI
-```
+
+## ⚙️ Features
+
+### ✅ Detection Capabilities
+- CNN trained on GAF-transformed tabular data
+- VAE for anomaly scoring
+- CNN + VAE fusion evaluation
+- Grad-CAM explainability
+- Works with NSL-KDD, CICIDS2017, UNSW-NB15 datasets
+
+### 📊 Real-Time Dashboard
+- System status and alert panel
+- Metrics summary (Accuracy, Precision, Recall, F1, AUC-ROC)
+- Dataset and model metadata
+- Grad-CAM visualizations with heatmaps
+- Top detected attack types with bar/pie chart
+- Resource monitoring (CPU, RAM, Disk)
+- Full/mini-batch evaluation toggle
+- Downloadable evaluation reports
 
 ---
 
-## 🚀 Run Full Pipeline
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/visezion/SENTRY-AI.git
+cd SENTRY-AI
+````
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Place Your Dataset
+
+Download and place datasets in the `data/` directory:
+
+* `nsl_kdd_combined.csv`
+* `cicids2017_combined.csv`
+* `unsw_nb15_combined.csv`
+
+### 4. Run Training/Evaluation
 
 ```bash
 python -m src.main --dataset NSL-KDD
 python -m src.main --dataset CICIDS2017
 python -m src.main --dataset UNSW-NB15
-python -m src.main --dataset SENTRY-COMBINED
 ```
-
-Each run will:
-
-* 🔁 Train (or load) CNN & VAE models per dataset
-* 📊 Evaluate performance (accuracy, F1, etc.)
-* 🔍 Generate Grad-CAM explanation
-* 🤖 Run CNN + VAE fusion
-* 💾 Save all results to `outputs/`
 
 ---
 
-## 📥 Dataset Preparation
-
-### NSL-KDD
-
-Place in:
-
-```
-data/nsl_kdd.csv
-```
-
-### CICIDS2017
-
-1. Download `MachineLearningCSV.zip`
-2. Merge all CSVs into:
-
-```
-data/cicids2017_combined.csv
-```
-
-### UNSW-NB15
-
-1. Download `UNSW-NB15_1.csv` to `UNSW-NB15_4.csv`
-2. Merge using:
-
-```python
-from src.utils import merge_unsw_parts
-merge_unsw_parts()
-```
-
-### Combined (All)
-
-Run:
+## 🖥️ Launch Dashboard (comming soon)
 
 ```bash
-python merge_all_datasets.py
+python app.py
+```
+
+Then open your browser at [http://localhost:5000](http://localhost:5000)
+
+---
+
+## 🔧 Configuration
+
+Edit `src/config.py` to control:
+
+* Model parameters (epochs, batch size, learning rate)
+* Image size for GAF transform
+* Evaluation mode:
+
+```python
+USE_MINI_EVAL = True  # Set to False to use full evaluation
 ```
 
 ---
 
-## 🧠 Model Checkpointing
+## 📄 Outputs
 
-* All models are auto-saved and reused per dataset.
-* You’ll be prompted to reuse saved models or re-train:
-
-```
-models/cnn_model_nsl_kdd.pth
-models/vae_model_unsw_nb15.pth
-```
+* Evaluation metrics: `outputs/metrics_<dataset>.json`
+* Grad-CAM images: `outputs/gradcam_heatmaps/<dataset>/`
+* Fusion reports: `outputs/fusion_metrics_<dataset>.txt`
 
 ---
 
-## 🖼️ Grad-CAM Visualization
+## 🧪 Datasets Used
 
-* Output in:
-
-```
-outputs/gradcam_heatmaps/<dataset>/gradcam_0.png
-```
-
-Use `--gradcam_index N` to select which input sample to visualize.
-
----
-
-## 📊 Metric Logs
-
-All evaluation scores (CNN, VAE, Fusion) are saved to:
-
-```
-outputs/fusion_metrics_<dataset>.txt
-```
-
----
-
-## 📡 Future Additions
-
-* 🧩 Live network capture
-* 🌐 GUI switching between datasets + live feedback
-* 📦 Docker/streamlit deployment
-
----
-
-## 🧑‍💻 Author
-
-Victor Ayodeji Oluwasusi
-PhD Researcher, Cybersecurity & AI
-[GitHub](https://github.com/visezion) | [Scholar](https://scholar.google.com/citations?user=eeexwhIAAAAJ)
+| Dataset    | Type          | Source               |
+| ---------- | ------------- | -------------------- |
+| NSL-KDD    | Tabular       | KDD Cup (Improved)   |
+| CICIDS2017 | Network Flows | Canadian Institute   |
+| UNSW-NB15  | Realistic Mix | Australian Cyber Lab |
 
 ---
 
 ## 📜 License
 
-MIT — open source and reproducible for academic and commercial use.
+MIT License © 2025 \[Victor Ayodeji Oluwasusi]
+
+---
+
+## 🤝 Contribute
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+---
+
+## 📬 Contact
+
+For questions or support, contact:
+
+Victor Ayodeji Oluwasusi
+PhD Researcher, Cybersecurity & AI
+[GitHub](https://github.com/visezion) | [Scholar](https://scholar.google.com/citations?user=eeexwhIAAAAJ)

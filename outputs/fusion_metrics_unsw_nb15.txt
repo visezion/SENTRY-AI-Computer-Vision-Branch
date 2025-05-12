@@ -1,0 +1,6 @@
+Fusion Metrics for unsw_nb15
+Accuracy:  0.9999
+Precision: 1.0000
+Recall:    0.9999
+F1-Score:  1.0000
+AUC-ROC:   nan
