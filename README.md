@@ -1,7 +1,7 @@
 # 🧠 SENTRY-AI: Explainable AI for Intrusion Detection
 
 **SENTRY-AI** is an **AI-powered Intrusion Detection System (IDS)** designed to advance cybersecurity research and practice.
-Built with **deep learning, explainable AI, and fusion models**, it achieved **99.99% accuracy on the UNSW-NB15 benchmark dataset** — a state-of-the-art performance for anomaly detection.
+Built with **deep learning, explainable AI, and fusion models**, it achieved **99.99% accuracy on the UNSW-NB15 benchmark dataset** - a state-of-the-art performance for anomaly detection.
 
 This project was created **independently and voluntarily** to support the global cybersecurity community. It is licensed under **MIT** for open academic and industry adoption.
 
@@ -79,7 +79,7 @@ python -m src.main --dataset UNSW-NB15
 
 ## 📜 License
 
-MIT License © 2025 — **Victor Ayodeji Oluwasusi**
+MIT License © 2025 - **Victor Ayodeji Oluwasusi**
 
 ---
 
