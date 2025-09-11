@@ -7,7 +7,7 @@ This project was created **independently and voluntarily** to support the global
 
 ---
 
-## ✨ Why SENTRY-AI Matters
+##  Why SENTRY-AI Matters
 
 Cybersecurity threats are growing in scale and complexity. Traditional IDS models struggle with accuracy and transparency.
 
@@ -18,11 +18,11 @@ Cybersecurity threats are growing in scale and complexity. Traditional IDS model
 * **Multi-dataset robustness** (tested on NSL-KDD, CICIDS2017, UNSW-NB15).
 * **Open-source availability** for researchers, enterprises, and startups.
 
-📊 *This work contributes to advancing the digital technology sector by providing a reproducible, high-accuracy IDS framework available to the global community.*
+ *This work contributes to advancing the digital technology sector by providing a reproducible, high-accuracy IDS framework available to the global community.*
 
 ---
 
-## ⚡ Key Features
+##  Key Features
 
 * **CNN anomaly detection** with Gramian Angular Field (GAF) encoding.
 * **Variational Autoencoder (VAE)** for unsupervised anomaly detection.
@@ -32,7 +32,7 @@ Cybersecurity threats are growing in scale and complexity. Traditional IDS model
 
 ---
 
-## 📊 Benchmark Performance
+##  Benchmark Performance
 
 | Dataset    | Accuracy   | Precision | Recall | F1-Score |
 | ---------- | ---------- | --------- | ------ | -------- |
@@ -42,7 +42,7 @@ Cybersecurity threats are growing in scale and complexity. Traditional IDS model
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Clone repo
@@ -58,7 +58,7 @@ python -m src.main --dataset UNSW-NB15
 
 ---
 
-## 📁 Repository Overview
+## Repository Overview
 
 * **data/** – benchmark datasets (NSL-KDD, CICIDS2017, UNSW-NB15)
 * **src/** – training, evaluation, explainability (CNN, VAE, Fusion)
@@ -68,18 +68,18 @@ python -m src.main --dataset UNSW-NB15
 
 ---
 
-## 🌍 Sector Impact & Adoption
+## Sector Impact & Adoption
 
 * ⭐ 6 stars, 🍴 3 forks → independent recognition by researchers/developers.
 * Used as a **reference model for benchmarking IDS research**.
 * Freely available under MIT license for academic labs and enterprises.
-* Relevant to **UK cybersecurity priorities** (resilience, AI adoption, network security).
+* Relevant to **cybersecurity priorities** (resilience, AI adoption, network security).
 
 ---
 
 ## 📜 License
 
-MIT License © 2025 - **Victor Ayodeji Oluwasusi**
+MIT License © 2024 - **Victor Ayodeji Oluwasusi**
 
 ---
 
