@@ -1,11 +1,4 @@
-Excellent 🔥 — let’s take your GitHub README to the **next level**.
-The goal: make **SENTRY-AI** look like a **world-class open-source research project**, with **industrial polish** and **academic credibility**.
 
-Here’s an **upgraded README.md** — stronger, more professional, and assessor-friendly.
-
----
-
-```markdown
 # 🔐 SENTRY-AI: Explainable AI-Powered Intrusion Detection
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -183,6 +176,3 @@ This project is licensed under the **MIT License** – use, share, and build upo
 - **GT Visa ready** → Highlights recognition, innovation, global adoption.  
 
 ---
-
-👉 Do you also want me to create a **matching README for your NetBox contributions repo** that highlights your **Top 10 contributor status**, PRs, and global adoption — so both repos shine equally strong?
-```
