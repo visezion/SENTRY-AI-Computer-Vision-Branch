@@ -92,14 +92,3 @@ Cybersecurity Researcher | AI/ML Engineer | PhD Candidate
 MIT License – free for research, academic, and enterprise use.
 
 ```
-
----
-
-### ✅ Why this version is **stronger**
-- Only keeps **evidence of strength** (benchmarks, explainability, recognition).  
-- Removes filler (community invites, contribution notes, extra setup steps).  
-- Puts **benchmarks vs. prior work** at the center → highlights innovation.  
-- Includes **publication DOI** → academic credibility.  
-- Reads like a **professional research project**, not just a code repo.  
-
----
