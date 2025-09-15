@@ -41,6 +41,7 @@ Cybersecurity threats are growing in scale and complexity. Traditional IDS model
 | NSL-KDD    | 97.9%      | 97.5%     | 97.8%  | 97.6%    |
 
 ---
+<img width="866" height="1070" alt="image" src="https://github.com/user-attachments/assets/463a7fd2-5373-4e4d-98c5-b78066a2064b" />
 
 ## Quick Start
 
