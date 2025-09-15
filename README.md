@@ -27,9 +27,6 @@
 ### Results (This Work)
 | Dataset     | Model   | Accuracy | Precision | Recall | F1-Score | AUC-ROC |
 |-------------|---------|----------|-----------|--------|----------|---------|
-| **NSL-KDD** | CNN     | 90.13%   | 82.56%    | 99.99% | 90.44%   | 99.97%  |
-|             | Fusion  | **99.00%** | **99.84%** | **98.01%** | **98.92%** | **99.81%** |
-| **CICIDS2017** | CNN  | 90.35%   | 67.14%    | 99.99% | 80.33%   | 99.97%  |
 |             | Fusion  | **95.55%** | **99.90%** | **77.48%** | **87.28%** | **99.95%** |
 | **UNSW-NB15** | CNN  | 100.00%  | 100.00%   | 100.00% | 100.00%  | –       |
 |             | Fusion  | **99.99%** | **100.00%** | **99.99%** | **100.00%** | – |
@@ -37,11 +34,6 @@
 ### Comparison with Prior Work
 | Dataset     | Model                         | Accuracy | F1-Score | Reference                  |
 |-------------|-------------------------------|----------|----------|----------------------------|
-| NSL-KDD     | CNN-LSTM (Hybrid DL)          | 98.99    | 98.82    | Aljawarneh et al., 2018    |
-|             | **SENTRY-AI (Fusion)**        | **99.00** | **98.92** | *This work*                |
-| CICIDS2017  | CNN-MCL                       | 94.32    | –        | Lin et al., 2024           |
-|             | Hybrid LSTM-AE                | 94.11    | 82.24    | Gupta et al., 2022         |
-|             | **SENTRY-AI (Fusion)**        | **95.55** | **87.28** | *This work*                |
 | UNSW-NB15   | GMM-WGAN-IDS                  | 87.70    | 85.44    | Alomari et al., 2022       |
 |             | CNN-VAE (Semi-Supervised)     | 91.13    | 89.45    | Saeed et al., 2022         |
 |             | **SENTRY-AI (Fusion)**        | **99.99** | **100.00** | *This work*                |
