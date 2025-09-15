@@ -4,7 +4,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Stars](https://img.shields.io/github/stars/visezion/Sentry-AI?style=social)
 ![Forks](https://img.shields.io/github/forks/visezion/Sentry-AI?style=social)
-[![DOI](https://zenodo.org/badge/DOI/10.1016/B978-0-443-26482-5.00009-2.svg)](https://doi.org/10.1016/B978-0-443-26482-5.00009-2)
 
 > **SENTRY-AI** is an open-source, **explainable cybersecurity system** that fuses  
 > **Convolutional Neural Networks (CNNs)** and **Variational Autoencoders (VAEs)**  
