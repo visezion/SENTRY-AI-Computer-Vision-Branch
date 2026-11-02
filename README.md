@@ -36,6 +36,7 @@
 |             | CNN-VAE (Semi-Supervised)     | 91.13    | 89.45    | Saeed et al., 2022         |
 |             | **SENTRY-AI (Fusion)**        | **99.99** | **100.00** | *This work*                |
 
+Results on the UNSW-NB15 benchmark; real-world performance may vary.” Experts know that dataset often produces near-perfect scores, and showing you know it too adds credibility.
 ---
 
 ## 🔎 Explainability
